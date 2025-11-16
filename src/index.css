@@ -1,7 +1,4 @@
 @import "tailwindcss";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
 /* Necesario para que la app ocupe toda la pantalla */
 html, body, #root {
