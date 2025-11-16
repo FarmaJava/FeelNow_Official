@@ -13,11 +13,12 @@ function App() {
       
       <Routes>
         <Route path="/" element={<Navbar />}>
+          <Route index element={<Home />} />   {/* <---- ESTA ES LA CLAVE */}
           <Route path="home" element={<Home />} />
         </Route>
-        <Route path="main" element={<NavbarDiary />}></Route>
-      </Routes>
 
+        <Route path="/main" element={<NavbarDiary />} />
+      </Routes>
     </div>
   );
 }
