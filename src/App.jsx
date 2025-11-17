@@ -6,7 +6,7 @@ import Profile from "./pages/User-Diary/Profile.jsx";
 import Music from "./pages/User-Diary/Music.jsx";
 import Navbar from "./components/Navbar.jsx";
 import NavbarDiary from "./components/NavbarDiary.jsx";
-import Login from "./pages/User-Account/login.jsx";
+import Login from "./pages/User-Account/Login.jsx";
 import Register from "./pages/User-Account/Register.jsx";
 import UserDisplay from "./pages/User-Account/User-display.jsx";
 
