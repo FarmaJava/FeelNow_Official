@@ -54,7 +54,7 @@ export default function Navbar() {
 
         {/* Login desktop */}
         <a
-          href=""
+          href="/user/login"
           className="hidden md:block px-4 py-2 rounded-xl font-semibold shadow-lg transition hover:scale-105"
           style={{
             backgroundColor: "#6bc4c0ff",
@@ -102,7 +102,7 @@ export default function Navbar() {
           </button>
 
           <a
-            href=""
+            href="/user/login"
             className="px-4 py-2 rounded-xl font-semibold shadow-lg"
             style={{
               backgroundColor: "#6bc4c0ff",

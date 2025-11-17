@@ -33,15 +33,16 @@ export default function Home() {
             Tu espacio personal para registrar tus emociones, analizar tu progreso y conectar con tu bienestar.
           </p>
 
-          <button
-            className="px-5 md:px-6 py-3 rounded-xl font-semibold shadow-lg transition hover:scale-105"
+          <a
+            href="/user/register"
+            className="px-9 md:px-8 py-4 rounded-xl font-semibold shadow-lg transition hover:scale-105 text-xl"
             style={{
-              backgroundColor: "#3C79A6",
+              backgroundColor: "#478dbeff",
               color: "#F7FBFF",
             }}
           >
             Empezar ahora
-          </button>
+          </a>
         </div>
       </section>
 
@@ -98,26 +99,26 @@ export default function Home() {
               </div>
 
               {/* Lápiz realista animado */}
-              <div className="absolute bottom-60 right-6 rotate-[-12deg] origin-right animate-write flex items-center">
+              <div className="absolute bottom-65 right-0 rotate-[-12deg] origin-right animate-write flex items-center">
                 <div
-                  className="w-3 h-3 bg-[#FFEBBB]"
+                  className="w-5 h-5 bg-[#FFEBBB]"
                   style={{
                     clipPath: "polygon(0 50%, 100% 0, 100% 100%)",
                   }}
                 ></div>
 
-                <div className="w-16 h-3 bg-[#E4A34A]"></div>
+                <div className="w-23 h-5 bg-[#E4A34A]"></div>
 
-                <div className="w-3 h-3 bg-[#C0C0C0]"></div>
+                <div className="w-3 h-5 bg-[#C0C0C0]"></div>
 
-                <div className="w-4 h-3 bg-[#FF8A8A] rounded-r-md"></div>
+                <div className="w-4 h-5 bg-[#FF8A8A] rounded-r-md"></div>
               </div>
 
               {/* vibración sutil */}
               <style>{`
                 @keyframes write {
                   0% { transform: rotate(-12deg) translateY(0px); }
-                  50% { transform: rotate(-10deg) translateY(1px); }
+                  50% { transform: rotate(-20deg) translateY(1px); }
                   100% { transform: rotate(-12deg) translateY(0px); }
                 }
                 .animate-write {
@@ -129,10 +130,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ------------------------------------------------------------- */}
-      {/* ------------------- QUIÉNES SOMOS (MODIFICADO) --------------- */}
-      {/* ------------------------------------------------------------- */}
 
+      {/* ------------------- QUIÉNES SOMOS --------------- */}
       {/* QUIÉNES SOMOS */}
       <section
         id="quienes-somos"
