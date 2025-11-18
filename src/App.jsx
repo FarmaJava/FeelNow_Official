@@ -9,25 +9,28 @@ import NavbarDiary from "./components/NavbarDiary.jsx";
 import Login from "./pages/User-Account/Login.jsx";
 import Register from "./pages/User-Account/Register.jsx";
 import UserDisplay from "./pages/User-Account/User-display.jsx";
+import { AuthProvider } from "./context/AuthContext.jsx";
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-800">
-      
-      <Routes>
-        <Route path="/" element={<Navbar />}>
-          <Route index element={<Home />} />
-          <Route path="home" element={<Home />} />
-        </Route>
+    <AuthProvider>
+      <div className="min-h-screen bg-gray-100 text-gray-800">
+        
+        <Routes>
+          <Route path="/" element={<Navbar />}>
+            <Route index element={<Home />} />
+            <Route path="home" element={<Home />} />
+          </Route>
 
-        <Route path="/user" element={<UserDisplay />}> 
-            <Route path="register" element={<Register />} />
-            <Route path="login" element={<Login />} />
-        </Route>
+          <Route path="/user" element={<UserDisplay />}> 
+              <Route path="register" element={<Register />} />
+              <Route path="login" element={<Login />} />
+          </Route>
 
-        <Route path="/personal-diary" element={<NavbarDiary />} />
-      </Routes>
-    </div>
+          <Route path="/personal-diary" element={<NavbarDiary />} />
+        </Routes>
+      </div>
+    </AuthProvider>
   );
 }
 
