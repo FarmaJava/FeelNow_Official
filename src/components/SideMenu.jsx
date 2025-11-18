@@ -57,35 +57,35 @@ export default function SideMenu() {
         <nav className="w-full flex flex-col gap-3 mt-2 px-6">
 
           <Link
-            to="/personal-diary/actividad1"
+            to="/personal-diary/diary"
             onClick={() => setOpen(false)}
             className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-sm"
           >
-            Actividad 1
+            Diario
           </Link>
 
           <Link
-            to="/personal-diary/actividad2"
+            to="/personal-diary/stats"
             onClick={() => setOpen(false)}
             className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-sm"
           >
-            Actividad 2
+            Seguimiento de Emociones
           </Link>
 
           <Link
-            to="/personal-diary/actividad3"
+            to="/personal-diary/Music"
             onClick={() => setOpen(false)}
             className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-sm"
           >
-            Actividad 3
+            Musica
           </Link>
 
           <Link
-            to="/personal-diary/actividad4"
+            to="/personal-diary/profile"
             onClick={() => setOpen(false)}
             className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-sm"
           >
-            Actividad 4
+            Perfil
           </Link>
 
         </nav>

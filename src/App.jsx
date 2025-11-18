@@ -29,7 +29,7 @@ function App() {
 
           <Route path="/personal-diary" element={<SideMenu />}>
             <Route index element={<Diary />} />
-            <Route path="actividad1" element={<Diary />} />
+            <Route path="diary" element={<Diary />} />
             <Route path="stats" element={<Stats />} />
             <Route path="profile" element={<Profile />} />
             <Route path="music" element={<Music />} />
