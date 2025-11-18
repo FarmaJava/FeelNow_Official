@@ -3,7 +3,7 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
-// Pegá acá tu configuración EXACTA de Firebase
+// Configuración de Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBVaJrkLmX7lE6X0oryceO9TFv6dh_3ljc",
   authDomain: "feelnow-oficial-database.firebaseapp.com",
