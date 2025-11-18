@@ -1,22 +1,22 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
-import { auth } from "../../firebase/firebase.js";
+import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import { useAuth } from "../../context/AuthContext.jsx"; // IMPORTANTE
 
 export default function Register() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleRegister = async () => {
-    setError("");
+  const navigate = useNavigate();
+  const { register } = useAuth(); // 👈 usando la función del AuthContext
 
-    if (!fullName || !email || !username || !password || !repeatPassword) {
+  const handleRegister = async () => {
+    if (!fullName || !email || !password || !repeatPassword) {
       return setError("Completa todos los campos.");
     }
 
@@ -27,25 +27,20 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      // Registro mediante AUTH CONTEXT
+      await register(email, password, fullName);
 
-      const user = userCredential.user;
-      await sendEmailVerification(user);
+      Swal.fire({
+        title: "¡Bienvenido a FeelNow! 😊",
+        text: "Te enviamos un correo de verificación. Revísalo antes de iniciar sesión.",
+        icon: "success",
+      });
 
-
-      console.log("Usuario creado:", userCredential.user);
-
-      alert("Cuenta creada con éxito. ¡Bienvenido!");
-
-      // ACA si querés luego guardamos en Firestore (nombre, username, etc)
+      navigate("/user/login"); // Redirige al login
 
     } catch (err) {
       console.error(err);
-      setError(err.message);
+      setError(` Ocurrio un error: ${err.message}`);
     }
 
     setLoading(false);
@@ -56,22 +51,19 @@ export default function Register() {
       className="min-h-screen w-full bg-cover bg-center flex items-center justify-center relative"
       style={{ backgroundImage: "url('/fondologin.jpg')" }}
     >
-      {/* Filtro frío */}
       <div className="absolute inset-0 bg-[#5ea7c855] backdrop-blur-sm"></div>
 
-      {/* Flecha */}
       <div className="absolute top-4 left-6">
         <a
           href="/home"
           className="inline-flex items-center justify-center w-18 h-18 rounded-full bg-opacity-20 hover:bg-opacity-30 transition-all duration-300"
         >
-          <span className="text-white text-5xl transform transition-transform duration-300 hover:-translate-x-1">
+          <span className="text-white text-5xl hover:-translate-x-1 transition">
             ←
           </span>
         </a>
       </div>
 
-      {/* Container */}
       <div className="relative z-10 w-[90%] max-w-md p-8 rounded-2xl backdrop-blur-xl shadow-2xl border border-white/20 bg-white/10 text-white">
         <h2 className="text-3xl font-bold mb-6 text-center">Registrarse</h2>
 
@@ -91,13 +83,6 @@ export default function Register() {
           />
 
           <input
-            type="text"
-            placeholder="Nombre de usuario"
-            onChange={(e) => setUsername(e.target.value)}
-            className="px-4 py-3 rounded-xl bg-white/20 backdrop-blur-md outline-none placeholder-white/70"
-          />
-
-          <input
             type="password"
             placeholder="Contraseña"
             onChange={(e) => setPassword(e.target.value)}
@@ -111,16 +96,14 @@ export default function Register() {
             className="px-4 py-3 rounded-xl bg-white/20 backdrop-blur-md outline-none placeholder-white/70"
           />
 
-          {/* Error */}
           {error && (
             <p className="text-red-300 text-sm text-center">{error}</p>
           )}
 
-          {/* Botón */}
           <button
             onClick={handleRegister}
             disabled={loading}
-            className="w-full py-3 rounded-xl font-semibold shadow-lg hover:scale-105 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full py-3 rounded-xl font-semibold shadow-lg hover:scale-105 transition disabled:opacity-50"
             style={{ backgroundColor: "#3C79A6", color: "#F7FBFF" }}
           >
             {loading ? "Registrando..." : "Registrarse"}

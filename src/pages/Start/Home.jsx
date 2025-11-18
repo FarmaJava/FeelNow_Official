@@ -1,6 +1,18 @@
 import React from "react";
+import { useAuth } from "../../context/AuthContext.jsx";
 
 export default function Home() {
+
+  const { user } = useAuth();
+
+  const StartNowRedirect = () => {
+    if (user) {
+      window.location.href = "/personal-diary";
+    } else {
+      window.location.href = "/user/register";
+    }
+  }
+
   return (
     <div style={{ backgroundColor: "#F7FBFF" }}>
       
@@ -34,7 +46,7 @@ export default function Home() {
           </p>
 
           <a
-            href="/user/register"
+            onClick={StartNowRedirect}
             className="px-9 md:px-8 py-4 rounded-xl font-semibold shadow-lg transition hover:scale-105 text-xl"
             style={{
               backgroundColor: "#478dbeff",
