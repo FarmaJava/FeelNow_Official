@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx"; // IMPORTANTE
+import Swal from "sweetalert2";
 
 export default function Login() {
   const { login } = useAuth();

@@ -27,6 +27,11 @@ export function AuthProvider({ children }) {
         
         setUser(currentUser); // user puede ser NULL o un usuario logueado
         setLoading(false);    // Cuando Firebase responde, dejamos de cargar
+        if (currentUser != null) {
+          console.log("Usuario actual:", currentUser.email);
+        } else {
+          console.log("No hay usuario logueado");
+        }
     });
 
     return unsubscribe; // ejecuta la funcion y lo hace una vez

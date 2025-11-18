@@ -5,7 +5,7 @@ import Stats from "./pages/User-Diary/Stats.jsx";
 import Profile from "./pages/User-Diary/Profile.jsx";
 import Music from "./pages/User-Diary/Music.jsx";
 import Navbar from "./components/Navbar.jsx";
-import NavbarDiary from "./components/NavbarDiary.jsx";
+import SideMenu from "./components/SideMenu.jsx";
 import Login from "./pages/User-Account/Login.jsx";
 import Register from "./pages/User-Account/Register.jsx";
 import UserDisplay from "./pages/User-Account/User-display.jsx";
@@ -23,13 +23,21 @@ function App() {
           </Route>
 
           <Route path="/user" element={<UserDisplay />}> 
-              <Route path="register" element={<Register />} />
-              <Route path="login" element={<Login />} />
+            <Route path="register" element={<Register />} />
+            <Route path="login" element={<Login />} />
           </Route>
 
-          <Route path="/personal-diary" element={<NavbarDiary />} />
+          <Route path="/personal-diary" element={<SideMenu />}>
+            <Route index element={<Diary />} />
+            <Route path="actividad1" element={<Diary />} />
+            <Route path="stats" element={<Stats />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="music" element={<Music />} />
+          </Route>
         </Routes>
+
       </div>
+
     </AuthProvider>
   );
 }
