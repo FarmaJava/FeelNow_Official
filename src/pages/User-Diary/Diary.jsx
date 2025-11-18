@@ -1,6 +1,7 @@
 
 function Diary() {
-  return ( <></>
+  return ( <><div>
+    askljfdsikakj</div></>
   );
 }
 
