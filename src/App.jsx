@@ -32,7 +32,9 @@ function App() {
             <Route path="diary" element={<Diary />} />
             <Route path="stats" element={<Stats />} />
             <Route path="profile" element={<Profile />} />
-            <Route path="music" element={<Music />} />
+            <Route path="music" element={<Music />}>
+              <Route path=":mood" element={<Music />} />
+            </Route>
           </Route>
         </Routes>
 
