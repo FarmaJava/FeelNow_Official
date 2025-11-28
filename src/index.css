@@ -67,3 +67,10 @@ body {
   animation: softGlow 1.2s ease-out forwards;
 }
 
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.3);
+  border-radius: 4px;
+}
