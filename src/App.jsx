@@ -1,6 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Start/Home.jsx";
-import Diary from "./pages/User-Diary/Diary.jsx";
+import Diary from "./pages/User-Diary/diary.jsx";
 import Stats from "./pages/User-Diary/Stats.jsx";
 import Profile from "./pages/User-Diary/Profile.jsx";
 import Music from "./pages/User-Diary/Music.jsx";
