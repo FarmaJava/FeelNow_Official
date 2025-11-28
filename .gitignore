@@ -6,6 +6,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+key.env
 
 node_modules
 dist
@@ -14,7 +15,8 @@ dist-ssr
 
 # .gitignore
 .env
-key.env
+key.env.local
+.env.local
 
 
 # Editor directories and files
@@ -28,7 +30,4 @@ key.env
 *.sln
 *.sw?
 *.env
-.env.local
-.env.*.local
-.env.testing
-.env.production.local
+

@@ -5,6 +5,7 @@ import { doc, setDoc } from "firebase/firestore";
 import { useAuth } from "../../context/AuthContext";
 import { collection, query, getDocs } from "firebase/firestore";
 import { useEffect } from "react";
+import OpenAI from "openai";
 
 
 export default function Diary() {
@@ -23,9 +24,9 @@ export default function Diary() {
   const [mood, setMood] = useState(null); // 1–5
   const [tags, setTags] = useState([]);
   const [energy, setEnergy] = useState("normal");
-  const [inputTag, setInputTag] = useState("");
   const [sleep, setSleep] = useState(8);   // horas dormidas
   const [stress, setStress] = useState(null); // 1-5
+  const [aiResponse, setAiResponse] = useState("");
 
   // Contexto de autenticación
   const { user } = useAuth();
@@ -56,7 +57,6 @@ export default function Diary() {
       setSelectedDay(null);
       setText("");
       setMood(null);
-      setTags([]);
       setEnergy("normal");
       setSleep(8);
       setStress(null);
@@ -83,6 +83,34 @@ export default function Diary() {
 
   //Cargar entradas guardadas
   const [entries, setEntries] = useState({});
+
+const generateAIResponse = async () => {
+  if (!text || text.trim().length < 100) 
+    return Swal.fire("Escribe más de 100 caracteres");
+
+  Swal.fire({
+    title: "Generando...",
+    allowOutsideClick: false,
+    didOpen: () => Swal.showLoading()
+  });
+
+  try {
+    const res = await fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text })
+    });
+
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    setAiResponse(data.output);
+    Swal.close();
+  } catch (err) {
+    console.error("Error generando respuesta:", err);
+    Swal.fire("Error", err.message, "error");
+  }
+};
 
 
 
@@ -164,7 +192,7 @@ export default function Diary() {
 }, [user, month, year]);
 
 
-  return (
+ return (
     <div
       className="min-h-screen w-full flex items-center justify-center relative p-4"
       style={{
@@ -178,69 +206,61 @@ export default function Diary() {
 
       {/* Contenedor principal */}
       <div className="relative z-10 w-full max-w-6xl flex h-[80vh] overflow-hidden rounded-2xl shadow-2xl border border-white/20 backdrop-blur-xl bg-white/10">
-
         {/* COLUMNA IZQUIERDA: CALENDARIO */}
         <div
-          className={`
-            h-full transition-all duration-500 ease-in-out bg-[#3C4B69aa]
-            flex flex-col p-4 text-white shadow-xl border-r border-white/20
-            ${selectedDay ? "w-[25%]" : "w-[60%]"} 
-          `}
+          className={`h-full transition-all duration-500 ease-in-out bg-[#3C4B69aa] flex flex-col p-4 text-white shadow-xl border-r border-white/20 ${
+            selectedDay ? "w-[25%]" : "w-[60%]"
+          }`}
         >
           <h2 className="text-2xl font-bold text-center">Calendario</h2>
 
           {/* Controles del mes */}
           <div className="flex justify-between items-center my-4">
-            <button
-              onClick={prevMonth}
-              className="px-3 py-1 bg-white/20 rounded-lg hover:bg-white/30 transition"
-            >
+            <button onClick={prevMonth} className="px-3 py-1 bg-white/20 rounded-lg hover:bg-white/30 transition">
               ◀
             </button>
-
             <p className="font-semibold text-lg">
-              {months[month]} {year}
+              {months[new Date().getMonth()]} {new Date().getFullYear()}
             </p>
-
-            <button
-              onClick={nextMonth}
-              className="px-3 py-1 bg-white/20 rounded-lg hover:bg-white/30 transition"
-            >
+            <button onClick={nextMonth} className="px-3 py-1 bg-white/20 rounded-lg hover:bg-white/30 transition">
               ▶
             </button>
           </div>
 
           {/* Días de la semana */}
           <div className="grid grid-cols-7 gap-1 text-center text-sm opacity-80 mb-2">
-            <div>Do</div><div>Lu</div><div>Ma</div><div>Mi</div><div>Ju</div><div>Vi</div><div>Sa</div>
+            {["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"].map((d) => (
+              <div key={d}>{d}</div>
+            ))}
           </div>
 
           {/* Grid del calendario */}
           <div className="grid grid-cols-7 gap-2 text-center text-sm">
-
             {/* Espacios vacíos antes del día 1 */}
-            {Array.from({ length: firstDay }).map((_, i) => ( //Crea un array con celdas vacías hasta el primer día del mes
-              <div key={`e-${i}`} className="opacity-0 select-none">x</div>
+            {Array.from({ length: new Date().getDay() }).map((_, i) => (
+              <div key={`empty-${i}`} className="opacity-0 select-none">
+                x
+              </div>
             ))}
 
-            {/* Días reales del mes */}
-            {Array.from({ length: daysInMonth }).map((_, i) => {
+            {/* Días del mes */}
+            {Array.from({ length: 30 }).map((_, i) => {
               const day = i + 1;
               const isSelected = selectedDay === day;
-
-              const dateKey = `${year}-${month + 1}-${day}`;
+              const dateKey = `2025-11-${day}`;
               const hasEntry = entries[dateKey] !== undefined;
 
               return (
                 <button
                   key={day}
                   onClick={() => filterdaysfuture(day)}
-                  className={`
-                    py-2 rounded-lg transition text-sm
-                    ${isSelected ? "bg-[#8DD3FF] text-black font-bold"
-                    : hasEntry ? "bg-[#8DD3FF55] text-black font-bold border border-[#8DD3FF]"
-                    : "bg-white/20 hover:bg-white/30"}
-                  `}
+                  className={`py-2 rounded-lg transition text-sm ${
+                    isSelected
+                      ? "bg-[#8DD3FF] text-black font-bold"
+                      : hasEntry
+                      ? "bg-[#8DD3FF55] text-black font-bold border border-[#8DD3FF]"
+                      : "bg-white/20 hover:bg-white/30"
+                  }`}
                 >
                   {day}
                 </button>
@@ -251,177 +271,148 @@ export default function Diary() {
 
         {/* COLUMNA DERECHA: DIARIO */}
         <div
-          className={`
-            h-full transition-all duration-500 ease-in-out flex flex-col
-            bg-[#2a344fbb] text-white p-4
-            ${selectedDay ? "w-[75%]" : "w-[40%]"}
-          `}
+          className={`h-full transition-all duration-500 ease-in-out flex flex-col bg-[#2a344fbb] text-white p-4 ${
+            selectedDay ? "w-[75%]" : "w-[40%]"
+          }`}
         >
-
-        {!selectedDay ? ( null ) : (  
-          <div className="flex justify-between items-center">
-            <button
-              onClick={() => setSelectedDay(null)}
-              className="px-3 py-1 bg-white/20 rounded-lg hover:bg-white/30 transition"
-            >
-              ◀ Volver
-            </button>
-
-            <h2 className="text-2xl font-semibold">
-              Diario del {selectedDay} de {months[month]} de {year}
-            </h2>
-          </div>
-        )}
-
-
-          {loading && (
-            <div className="text-white/90 text-sm mb-2">
-              ⏳ Guardando en la nube...
-            </div>
-          )}
-
-          {/* Sin día seleccionado */}
           {!selectedDay ? (
             <div className="flex flex-col justify-center items-center h-full opacity-70">
               <div className="text-5xl mb-4">📘</div>
-              <p className="text-lg text-center">
-                Selecciona un día para escribir en tu diario
-              </p>
+              <p className="text-lg text-center">Selecciona un día para escribir en tu diario</p>
             </div>
           ) : (
             <div className="flex flex-col h-full overflow-y-auto pr-2">
-              <h2 className="text-2xl font-semibold mb-2">
-                Diario del {selectedDay} de {months[month]} de {year}
-              </h2>
+              {/* Encabezado diario */}
+              <div className="flex justify-between items-center mb-2">
+                <button
+                  onClick={() => setSelectedDay(null)}
+                  className="px-3 py-1 bg-white/20 rounded-lg hover:bg-white/30 transition"
+                >
+                  ◀ Volver
+                </button>
+                <h2 className="text-2xl font-semibold">
+                  Diario del {selectedDay} de {months[new Date().getMonth()]} de {new Date().getFullYear()}
+                </h2>
+              </div>
 
-              {/* ENTRADA DE TEXTO */}
+              {/* Estado de guardado */}
+              {loading && <div className="text-white/90 text-sm mb-2">⏳ Guardando en la nube...</div>}
+
+              {/* Entrada de texto */}
               <textarea
-                className="
-                    w-full p-4 rounded-xl bg-white/20 text-white outline-none
-                    backdrop-blur-lg resize-none placeholder-white/50 mt-3
-                    min-h-[230px] resize-y
-                  "
+                className="w-full p-4 rounded-xl bg-white/20 text-white outline-none backdrop-blur-lg resize-none placeholder-white/50 mt-3 min-h-[230px] resize-y"
                 placeholder="Escribe tus pensamientos aquí..."
                 value={text}
                 onChange={(e) => setText(e.target.value)}
               ></textarea>
 
-              
-
-              {/* SELECTOR DE ENERGÍA */}
-              <p className="mt-2 text-white/80 text-sm">Nivel de energía:</p>
-              <select
-                value={energy}
-                onChange={(e) => setEnergy(e.target.value)}
-                className="bg-white/20 px-3 py-2 rounded-lg mt-1"
-              >
-                <option value="baja">Baja</option>
-                <option value="normal">Normal</option>
-                <option value="alta">Alta</option>
-              </select>
-
-              {/* SELECTOR DE EMOCIÓN */}
-              <p className="mt-2 text-white/80 text-sm">Estado de ánimo:</p>
-              <div className="flex gap-4 mt-2 text-3xl">
-                {[1,2,3,4,5].map((value) => (
-                  <button
-                    key={value}
-                    onClick={() => setMood(value)}
-                    className={`transition ${
-                      mood === value ? "scale-125" : "opacity-70"
-                    }`}
-                  >
-                    {value === 5 && "😁"}
-                    {value === 4 && "🙂"}
-                    {value === 3 && "😐"}
-                    {value === 2 && "🙁"}
-                    {value === 1 && "😢"}
-                  </button>
-                ))}
-              </div>
-
-              <p className="mt-4 text-white/80 text-sm">Nivel de estrés:</p>
-              <div className="flex gap-4 mt-2 text-3xl">
-                {[1,2,3,4,5].map((value) => (
-                  <button
-                    key={value}
-                    onClick={() => setStress(value)}
-                    className={`transition ${
-                      stress === value ? "scale-125" : "opacity-60"
-                    }`}
-                  >
-                    {value === 5 && "😱"}  {/* Máximo estrés */}
-                    {value === 4 && "😣"}
-                    {value === 3 && "😕"}
-                    {value === 2 && "🙂"}
-                    {value === 1 && "😌"}  {/* Casi sin estrés */}
-                  </button>
-                ))}
-              </div>
-
-              <p className="mt-4 text-white/80 text-sm">Horas dormidas:</p>
-              <input
-                type="number"
-                min="0"
-                max="24"
-                value={sleep}
-                onChange={(e) => setSleep(e.target.value)}
-                className="bg-white/20 px-3 py-2 rounded-lg mt-1 w-24 outline-none"
-              />
-
-              {/* TAGS */}
-              <p className="mt-4 text-white/80 text-sm">Etiquetas:</p>
-              <div className="flex gap-2 flex-wrap">
-                {tags.map((t, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 bg-white/20 rounded-xl text-sm flex items-center gap-2"
-                  >
-                    {t}
-                    <button onClick={() => setTags(tags.filter((_, i) => i !== index))}>
-                      ❌
+              {/* Selectores */}
+              <div className="mt-4 space-y-4">
+                {/* Energía */}
+                <p className="text-white/80 text-sm">Nivel de energía:</p>
+                <div className="flex gap-2 mt-2">
+                  {[
+                    { value: "baja", label: "🔋 Baja", color: "bg-[#4da6ff44]" },
+                    { value: "normal", label: "🔋 Normal", color: "bg-[#f5c54244]" },
+                    { value: "alta", label: "⚡ Alta", color: "bg-[#ff545444]" },
+                  ].map((item) => (
+                    <button
+                      key={item.value}
+                      onClick={() => setEnergy(item.value)}
+                      className={`px-4 py-2 rounded-full text-sm font-medium transition-all border ${
+                        energy === item.value ? `${item.color} border-white scale-105` : "bg-white/10 border-transparent opacity-70"
+                      }`}
+                    >
+                      {item.label}
                     </button>
-                  </span>
-                ))}
+                  ))}
+                </div>
+
+                {/* Estado de ánimo */}
+                <p className="text-white/80 text-sm">Estado de ánimo:</p>
+                <div className="flex gap-2 mt-3 flex-wrap">
+                  {[
+                    { value: 5, label: "😁 Muy feliz", color: "bg-[#7CFF7C44]" },
+                    { value: 4, label: "🙂 Bien", color: "bg-[#C4FF7C44]" },
+                    { value: 3, label: "😐 Neutral", color: "bg-[#FFF97C44]" },
+                    { value: 2, label: "🙁 Triste", color: "bg-[#FFC67C44]" },
+                    { value: 1, label: "😢 Muy mal", color: "bg-[#FF7C7C44]" },
+                  ].map((item) => (
+                    <button
+                      key={item.value}
+                      onClick={() => setMood(item.value)}
+                      className={`px-4 py-2 rounded-full text-sm transition-all border ${
+                        mood === item.value ? `${item.color} border-white scale-105` : "bg-white/10 border-transparent opacity-60"
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Estrés */}
+                <p className="text-white/80 text-sm">Nivel de estrés:</p>
+                <div className="flex gap-2 mt-3 flex-wrap">
+                  {[
+                    { value: 1, label: "😌 Relajado", color: "bg-[#7CFF7C33]" },
+                    { value: 2, label: "🙂 Bajo", color: "bg-[#C4FF7C33]" },
+                    { value: 3, label: "😕 Normal", color: "bg-[#FFF97C33]" },
+                    { value: 4, label: "😣 Alto", color: "bg-[#FFC67C33]" },
+                    { value: 5, label: "😱 Muy alto", color: "bg-[#FF7C7C33]" },
+                  ].map((item) => (
+                    <button
+                      key={item.value}
+                      onClick={() => setStress(item.value)}
+                      className={`px-4 py-2 rounded-full text-sm transition-all border ${
+                        stress === item.value ? `${item.color} border-white scale-105` : "bg-white/10 border-transparent opacity-60"
+                      }`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Horas dormidas */}
+                <div>
+                  <p className="text-white/80 text-sm">Horas dormidas:</p>
+                  <input
+                    type="number"
+                    min="0"
+                    max="24"
+                    value={sleep}
+                    onChange={(e) => setSleep(e.target.value)}
+                    className="bg-white/20 px-3 py-2 rounded-lg mt-1 w-24 outline-none"
+                  />
+                </div>
               </div>
 
-              <div className="flex gap-2 mt-2">
-                <input
-                  type="text"
-                  value={inputTag}
-                  onChange={(e) => setInputTag(e.target.value)}
-                  className="bg-white/20 px-3 py-2 rounded-lg flex-grow outline-none"
-                  placeholder="Agregar etiqueta..."
-                />
+              {/* Botones */}
+              <div className="mt-4 flex flex-col gap-2">
                 <button
-                  className="px-3 py-2 bg-[#8DD3FF] text-black rounded-lg"
-                  onClick={() => {
-                    if (inputTag.trim() !== "") {
-                      setTags([...tags, inputTag.trim()]);
-                      setInputTag("");
-                    }
-                  }}
+                  disabled={loading}
+                  onClick={handleSave}
+                  className={`p-3 rounded-xl font-semibold shadow-lg transition w-full ${
+                    loading ? "bg-gray-400 text-black opacity-70 cursor-not-allowed" : "bg-[#8DD3FF] hover:scale-105 text-black"
+                  }`}
                 >
-                  +
+                  {loading ? "Guardando..." : "Guardar"}
+                </button>
+
+                <button
+                  onClick={generateAIResponse}
+                  className="p-3 rounded-xl font-semibold bg-green-400 text-black shadow-lg hover:scale-105 transition"
+                >
+                  Generar Respuesta con IA
                 </button>
               </div>
 
-              {/* BOTÓN GUARDAR */}
-              <button
-                disabled={loading}
-                onClick={handleSave}
-                className={`
-                  mt-4 p-3 rounded-xl font-semibold  
-                  shadow-lg transition w-full
-                  ${loading 
-                    ? "bg-gray-400 text-black opacity-70 cursor-not-allowed" 
-                    : "bg-[#8DD3FF] hover:scale-105 text-black"
-                  }
-                `}
-              >
-                {loading ? "Guardando..." : "Guardar"}
-              </button>
-
+              {/* Respuesta IA */}
+              {aiResponse && (
+                <div className="mt-4 p-4 bg-white/20 rounded-xl text-white">
+                  <h3 className="font-semibold mb-2">Respuesta de tu amigo IA 💙</h3>
+                  <p className="whitespace-pre-line">{aiResponse}</p>
+                </div>
+              )}
             </div>
           )}
         </div>
