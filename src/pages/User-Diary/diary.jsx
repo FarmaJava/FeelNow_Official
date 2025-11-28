@@ -1,8 +1,8 @@
 import { useState } from "react";
 import Swal from "sweetalert2";
-import { db } from "../../../src/firebase/firebase.js";
+import { db } from "../../firebase/firebase.js";
 import { doc, setDoc } from "firebase/firestore";
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/AuthContext.jsx";
 import { collection, query, getDocs } from "firebase/firestore";
 import { useEffect } from "react";
 import OpenAI from "openai";
@@ -92,7 +92,7 @@ const generateAIResponse = async () => {
     title: "Generando...",
     allowOutsideClick: false,
     didOpen: () => Swal.showLoading()
-  });
+  })
 
   try {
     const res = await fetch("/api/generate", {
