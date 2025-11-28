@@ -11,7 +11,7 @@ import Register from "./pages/User-Account/Register.jsx";
 import UserDisplay from "./pages/User-Account/User-display.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
 
-function App() {
+function App()   { 
   return (
     <AuthProvider>
       <div className="min-h-screen bg-gray-100 text-gray-800">
