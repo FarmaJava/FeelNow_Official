@@ -85,25 +85,33 @@ export default function Diary() {
   const [entries, setEntries] = useState({});
 
 const generateAIResponse = async () => {
-  if (!text || text.trim().length < 100) 
+  if (!text || text.trim().length < 100) {
     return Swal.fire("Escribe más de 100 caracteres");
+  }
 
   Swal.fire({
     title: "Generando...",
     allowOutsideClick: false,
-    didOpen: () => Swal.showLoading()
-  })
+    didOpen: () => Swal.showLoading(),
+  });
 
   try {
-        const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text })
-        });
+    const res = await fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
 
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`Error ${res.status}: ${errorText}`);
+    }
 
     const data = await res.json();
-    if (data.error) throw new Error(data.error);
+
+    if (data.error) {
+      throw new Error(data.error);
+    }
 
     setAiResponse(data.output);
     Swal.close();
@@ -112,6 +120,7 @@ const generateAIResponse = async () => {
     Swal.fire("Error", err.message, "error");
   }
 };
+
 
   // Primer día del mes (0 = domingo)
   const firstDay = new Date(year, month, 1).getDay(); // Saco el primer día del mes
