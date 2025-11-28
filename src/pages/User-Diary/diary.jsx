@@ -113,9 +113,6 @@ const generateAIResponse = async () => {
   }
 };
 
-
-
-
   // Primer día del mes (0 = domingo)
   const firstDay = new Date(year, month, 1).getDay(); // Saco el primer día del mes
   const daysInMonth = new Date(year, month + 1, 0).getDate(); // Saco la cantidad de días del mes

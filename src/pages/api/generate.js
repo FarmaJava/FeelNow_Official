@@ -1,31 +1,29 @@
+// /api/generate.js
+import OpenAI from "openai";
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   const { text } = req.body;
-  const apiKey = process.env.GROQ_API_KEY;
+
+  if (!text) return res.status(400).json({ error: "No text provided" });
 
   try {
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: "Sé un amigo empático y responde de forma amigable." },
-          { role: "user", content: text }
-        ]
-      })
+    const client = new OpenAI({
+      apiKey: process.env.GROQ_API_KEY,
+      baseURL: "https://api.groq.com/openai/v1",
     });
 
-    const data = await response.json();
-    res.status(200).json({ output: data.choices[0].message.content });
-  } catch (err) {
-    console.error(err);
+    const response = await client.responses.create({
+      model: "openai/gpt-oss-120b",
+      input: text,
+    });
+
+    res.status(200).json({ output: response.output_text });
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Error generando respuesta" });
   }
 }
