@@ -5,7 +5,6 @@ import { doc, setDoc } from "firebase/firestore";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { collection, query, getDocs } from "firebase/firestore";
 import { useEffect } from "react";
-import OpenAI from "openai";
 
 
 export default function Diary() {
@@ -86,7 +85,7 @@ export default function Diary() {
 
 const generateAIResponse = async () => {
   if (!text || text.trim().length < 100) {
-    return Swal.fire("Escribe más de 100 caracteres");
+    return Swal.fire("Escribe al menos 100 caracteres");
   }
 
   Swal.fire({
@@ -96,30 +95,25 @@ const generateAIResponse = async () => {
   });
 
   try {
-    const res = await fetch("/api/generate", {
+    const res = await fetch("/api/ai", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({ text }),
     });
 
-    if (!res.ok) {
-      const errorText = await res.text();
-      throw new Error(`Error ${res.status}: ${errorText}`);
-    }
-
     const data = await res.json();
 
-    if (data.error) {
-      throw new Error(data.error);
-    }
+    if (!res.ok) throw new Error(data.error || "Error");
 
-    setAiResponse(data.output);
+    setAiResponse(data.result);
     Swal.close();
   } catch (err) {
-    console.error("Error generando respuesta:", err);
     Swal.fire("Error", err.message, "error");
   }
 };
+
 
 
   // Primer día del mes (0 = domingo)
@@ -174,6 +168,7 @@ const generateAIResponse = async () => {
         setStress(null);
         setSleep(8);
         setTags([]);
+        setAiResponse("");
       }
     }
   }
@@ -226,9 +221,11 @@ const generateAIResponse = async () => {
             <button onClick={prevMonth} className="px-3 py-1 bg-white/20 rounded-lg hover:bg-white/30 transition">
               ◀
             </button>
+
             <p className="font-semibold text-lg">
-              {months[new Date().getMonth()]} {new Date().getFullYear()}
+              {months[month]} {year}
             </p>
+
             <button onClick={nextMonth} className="px-3 py-1 bg-white/20 rounded-lg hover:bg-white/30 transition">
               ▶
             </button>
@@ -243,18 +240,16 @@ const generateAIResponse = async () => {
 
           {/* Grid del calendario */}
           <div className="grid grid-cols-7 gap-2 text-center text-sm">
-            {/* Espacios vacíos antes del día 1 */}
-            {Array.from({ length: new Date().getDay() }).map((_, i) => (
-              <div key={`empty-${i}`} className="opacity-0 select-none">
-                x
-              </div>
+            {/* Espacios antes del día 1 */}
+            {Array.from({ length: firstDay }).map((_, i) => (
+              <div key={`empty-${i}`} className="opacity-0 select-none">x</div>
             ))}
 
             {/* Días del mes */}
-            {Array.from({ length: 30 }).map((_, i) => {
+            {Array.from({ length: daysInMonth }).map((_, i) => {
               const day = i + 1;
               const isSelected = selectedDay === day;
-              const dateKey = `2025-11-${day}`;
+              const dateKey = `${year}-${month + 1}-${day}`;
               const hasEntry = entries[dateKey] !== undefined;
 
               return (

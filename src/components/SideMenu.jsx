@@ -3,36 +3,28 @@ import { Link, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { GiftIcon } from "@heroicons/react/24/solid";
 import Swal from "sweetalert2";
+import { OpenAI } from "openai";
 
 export default function SideMenu() {
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [aiResponse, setAiResponse] = useState("");
 
-  // --- FUNCIÓN PARA OBTENER LA FRASE DIARIA ---
+  // FUNCIÓN PARA OBTENER LA FRASE DIARIA
   const handleDailyQuote = async () => {
     setLoading(true);
+
     try {
-      const res = await fetch("https://api.api-ninjas.com/v2/quotes?categories=success,wisdom,life,inspirational", {
-        headers: {
-          "X-Api-Key": "T4LYO8nFEHa2oD6cFsr+uA==HshS5AmrmQ1JCOUY",
-        },
-      });
-
+      const res = await fetch("/api/quote");
       const data = await res.json();
-      const texto = data[0];
 
-      Swal.fire({
-        title: texto.author,
-        text: texto.quote,
-        icon: "info",
-        confirmButtonText: "Cerrar",
-        background: "#1f2937",
-        color: "#fff",
-        confirmButtonColor: "#4f46e5",
-      });
+      if (!res.ok || !data?.[0]?.quote) {
+        throw new Error("No se pudo obtener la frase");
+      }
+
+      await generateAIResponse(data[0].quote);
     } catch (err) {
-      console.log(err);
       Swal.fire({
         icon: "error",
         title: "Error",
@@ -41,8 +33,46 @@ export default function SideMenu() {
         color: "#fff",
       });
     }
+
     setLoading(false);
   };
+
+
+    //Cargar entradas guardadas
+    const [entries, setEntries] = useState({});
+  
+    const generateAIResponse = async (text) => {
+      Swal.fire({
+        title: "Generando...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      try {
+        const res = await fetch("/api/translate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ text }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error);
+
+        Swal.fire({
+          title: "Tu frase del día:",
+          text: data.result,
+          background: "#3C4B69",
+          color: "#fff",
+          icon: "info",
+        });
+      } catch (err) {
+        Swal.fire("Error", err.message, "error");
+      }
+    };
+
 
   return (
     <div className="flex min-h-screen bg-[#f2f7ff]">
@@ -95,30 +125,6 @@ export default function SideMenu() {
             className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-sm"
           >
             Diario
-          </Link>
-
-          <Link
-            to="/personal-diary/stats"
-            onClick={() => setOpen(false)}
-            className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-sm"
-          >
-            Seguimiento de Emociones
-          </Link>
-
-          <Link
-            to="/personal-diary/Music"
-            onClick={() => setOpen(false)}
-            className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-sm"
-          >
-            Música
-          </Link>
-
-          <Link
-            to="/personal-diary/profile"
-            onClick={() => setOpen(false)}
-            className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition text-sm"
-          >
-            Perfil
           </Link>
 
           {/* Botón del regalo del día */}

@@ -191,7 +191,7 @@ export default function Home() {
               <div className="flex-1 flex justify-center">
                 <img
                   ref={imgRef}
-                  src="/somos.jpeg"
+                  src="https://www.ionos.es/digitalguide/fileadmin/DigitalGuide/Teaser/pair-programming-t.jpg"
                   alt="Equipo FeelNow"
                   className="fade-slide-hidden w-64 h-64 md:w-140 md:h-140 object-cover rounded-2xl shadow-xl border-4 border-[#3C79A6]"
                 />
