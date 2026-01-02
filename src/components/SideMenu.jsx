@@ -25,6 +25,8 @@ export default function SideMenu() {
 
       await generateAIResponse(data[0].quote);
     } catch (err) {
+      console.log(err);
+      
       Swal.fire({
         icon: "error",
         title: "Error",
