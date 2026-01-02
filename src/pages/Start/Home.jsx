@@ -218,7 +218,7 @@ export default function Home() {
                 </p>
 
                 <p className="mt-6 font-semibold" style={{ color: "#1D3B29" }}>
-                  <b>Fundadores:</b> Facundo Maldonado & Ariana Salvay
+                  <b>Fundadores:</b> Facundo Maldonado & Ariana Salvay.
                 </p>
               </div>
             </>
